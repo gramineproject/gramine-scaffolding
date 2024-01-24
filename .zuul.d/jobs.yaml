@@ -1,0 +1,127 @@
+- job:
+    name: build-deb
+    nodeset: any
+    attempts: 1
+    run: .zuul.d/playbooks/build-deb/run.yaml
+    provides: pkg-deb
+
+- job:
+    name: build-docs
+    nodeset: any
+    attempts: 1
+    run: .zuul.d/playbooks/build-docs/run.yaml
+    post-run: .zuul.d/playbooks/build-docs/post.yaml
+
+- job:
+    name: bandit
+    parent: run-test-command
+    nodeset: any
+    vars:
+      test_command: ./run-bandit
+    attempts: 1
+
+- job:
+    name: pylint
+    parent: run-test-command
+    nodeset: any
+    vars:
+      test_command: ./run-pylint
+    attempts: 1
+
+- job:
+    name: pytest
+    parent: run-test-command
+    nodeset: any
+    vars:
+      test_command: ./run-pytest
+    attempts: 1
+
+- job:
+    name: scaffolding-tests
+    nodeset: any
+    run: .zuul.d/playbooks/scaffolding-tests/run.yaml
+    abstract: true
+
+- job:
+    name: test-python
+    parent: scaffolding-tests
+    vars:
+      test: python
+
+- job:
+    name: test-flask
+    parent: scaffolding-tests
+    vars:
+      test: flask
+
+- job:
+    name: test-nodejs
+    parent: scaffolding-tests
+    vars:
+      test: nodejs
+
+- job:
+    name: test-koajs
+    parent: scaffolding-tests
+    vars:
+      test: koajs
+
+- job:
+    name: test-expressjs
+    parent: scaffolding-tests
+    vars:
+      test: expressjs
+
+- job:
+    name: test-java-jar
+    parent: scaffolding-tests
+    vars:
+      test: java_jar
+
+- job:
+    name: test-java-gradle
+    parent: scaffolding-tests
+    vars:
+      test: java_gradle
+
+- job:
+    name: test-dotnet
+    parent: scaffolding-tests
+    vars:
+      test: dotnet
+
+- project:
+    name: gramineproject/gramine-scaffolding
+    check:
+      jobs:
+        - bandit
+        - pylint
+        - pytest
+        - build-deb
+        - build-docs
+        - test-python
+        - test-flask
+        - test-nodejs
+        - test-expressjs
+        - test-koajs
+        - test-java-jar
+        - test-java-gradle
+        - test-dotnet
+
+- nodeset:
+    name: plain
+    nodes:
+      - label: plain
+        name: controller
+
+- nodeset:
+    name: sgx
+    nodes:
+      - label: sgx
+        name: controller
+
+- nodeset:
+    name: any
+    alternatives:
+      - sgx
+      - plain

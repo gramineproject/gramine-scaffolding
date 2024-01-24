@@ -1,0 +1,54 @@
+Source: gramine-scaffolding
+Priority: optional
+Maintainer: Wojtek Porczyk <woju@invisiblethingslab.com>
+Standards-Version: 4.6.1
+Section: misc
+Build-Depends: debhelper-compat (= 13),
+ dh-sequence-python3,
+ dh-sequence-sphinxdoc,
+ dh-python (>= 5),
+ bandit,
+ python3 (>= 3.8),
+ python3-sphinx-rtd-theme,
+ python3-setuptools (>= 66),
+ pybuild-plugin-pyproject,
+# needed for dh_auto_test's run of pytest
+ python3-pytest,
+ python3-click,
+ python3-docker,
+ python3-tomli,
+ python3-tomli-w,
+
+Package: gramine-scaffolding
+Architecture: amd64
+Description: framework for quick development of Gramine apps
+ “Scaffolding for Gramine” is a framework for quickly templating new
+ Confidential Applications based on Gramine. There's also a limited provision to
+ convert existing apps into Confidential Apps.
+Depends:
+ docker.io,
+ gramine (>= 1.6),
+ mmdebstrap,
+ python3 (>= 3.8),
+ python3-click,
+ python3-docker,
+ python3-jinja2,
+ python3-tomli,
+ python3-tomli-w,
+ ${python3:Depends},
+ ${misc:Depends},
+Recommends:
+ gramine-ratls-dcap,
+ gramine-ratls-epid,
+ gramine-ratls-maa,
+
+Package: gramine-scaffolding-doc
+Architecture: all
+Description: documentation for Gramine Scaffolding
+ HTML documentation for Gramine Scaffolding
+Section: doc
+Depends:
+ ${misc:Depends},
+ ${sphinxdoc:Depends},
+Built-Using:
+ ${sphinxdoc:Built-Using},

@@ -1,0 +1,7 @@
+ARG FROM
+FROM ${FROM}
+
+COPY .scag/app.manifest.sgx /app
+COPY .scag/app.sig /app
+
+{#- vim: set ft=jinja : #}
