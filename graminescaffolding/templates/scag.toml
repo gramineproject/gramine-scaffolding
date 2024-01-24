@@ -1,0 +1,17 @@
+{% block application -%}
+[application]
+framework = "{{ scag.builder.framework }}"
+# Uncomment this if you'd like to use custom templates
+#templates = 'templates/'
+{%- endblock %}
+
+{% block gramine -%}
+[gramine]
+passthrough_env = {{ passthrough_env }}
+{%- endblock %}
+
+[{{ scag.builder.framework }}]
+{% block framework %}
+{%- endblock %}
+
+{#- vim: set ft=jinja : #}
