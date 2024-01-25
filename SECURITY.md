@@ -1,5 +1,16 @@
-# Security Policy
-Intel is committed to rapidly addressing security vulnerabilities affecting our customers and providing clear guidance on the solution, impact, severity and mitigation. 
+# Reporting Security Issues
 
-## Reporting a Vulnerability
-Please report any security vulnerabilities in this project utilizing the guidelines [here](https://www.intel.com/content/www/us/en/security-center/vulnerability-handling-guidelines.html).
+Please report security issues to security@gramineproject.io.
+
+Please note that the Gramine team analyzes security bugs only on the current
+`master` branch. This implies that you must reproduce the bug on master before
+reporting.
+
+The Gramine team will send a response indicating the next steps in handling your
+report. After the initial reply to your report, the security team will keep you
+informed of the progress towards a fix and full announcement, and may ask for
+additional information or guidance.
+
+If the bug report is correct, we will acknowledge your contributions by
+specifying your name in the commit message. Please provide the preferred
+name/nick to put there.
