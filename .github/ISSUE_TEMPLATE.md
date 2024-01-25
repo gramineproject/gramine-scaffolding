@@ -3,7 +3,7 @@
 Please provide as much information as possible.
 Paste any logs using three backticks (```).
 
-IMPORTANT: please do not post general questions here;
+IMPORTANT: please do not post general questions here.
 -->
 
 ## Description of the problem

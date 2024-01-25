@@ -8,9 +8,10 @@ Quick start (build from source)
 Steps common to all distros
 ---------------------------
 
-First, you need to install Gramine 1.6 from upstream repositories. In this
-example, codename is e.g., ``bookworm`` for Debian 12, but for Ubuntu this might
-be written as ``$(lsb_release -sc)`` substitution in the manual.
+First, you need to install latest release of Gramine (at least 1.6) from
+upstream package repositories. In this example, codename is e.g., ``bookworm``
+for Debian 12, but for Ubuntu this might be written as ``$(lsb_release -sc)``
+substitution in the Gramine's instructions.
 
 For example, when installing on Debian 12, add repositories like this:
 
@@ -96,5 +97,3 @@ Development (editable install into virtualenv)
     source .venv/bin/activate
     pip install --editable .
     scag-quickstart
-
-.. vim: ts=4 sts=4 sw=4 et
