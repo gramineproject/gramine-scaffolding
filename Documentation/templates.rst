@@ -21,7 +21,7 @@ but there are some templates common to all frameworks, like ``Dockerfile`` or
 a framework, unfortunately you need to look into SCAG source to find the exact
 template name.
 
-SCAG uses `Jinja <https://jinja.palletsprojects.com/> templates`__. Introduction
+SCAG uses `Jinja templates <https://jinja.palletsprojects.com/>`__. Introduction
 of this template language is outside of scope for this document, which will
 only describe concepts needed to explain, how SCAG uses those templates.
 
@@ -31,7 +31,7 @@ Template names, paths and inheritance
 In Jinja, templates have names, which usually translate to filenames under some
 preconfigured directory (though not always and not directly). An example name
 would be ``Dockerfile`` or ``framework/python-flask/app.manifest.template``. To
-override a template, you need to know it's name beforehand. In SCAG, default
+override a template, you need to know its name beforehand. In SCAG, default
 templates are stored in :file:`{platlib}/graminescaffolding/templates` (on
 Debian-derived system it might be
 :file:`/usr/lib/python3/dist-packages/graminescaffolding/templates`). You should
@@ -40,11 +40,11 @@ updated.
 
 To define your own templates, you need to specify your own directory with
 templates (usually :file:`templates/` subdirectory of your project directory)
-and provide it's name in ``application.templates`` setting in :file:`scag.toml`.
+and provide its name in ``application.templates`` setting in :file:`scag.toml`.
 Example from bootstrap contains this line commented, so you probably need to
 uncomment it and ``mkdir`` this directory.
 
-Templates, which are present in project's ``templates/`` override completely
+Templates which are present in project's ``templates/`` override completely
 templates that have the same name (i.e. are under the same subpath in default
 directory). You need to either provide all the template content (even the parts
 that you don't need to change), or you can *inherit* from one of the default
@@ -65,12 +65,12 @@ contents of the block are available as ``{{ super() }}``.
 Choosing the template to override
 ---------------------------------
 
-Here's a non-exhaustive list
-of files used by SCAG and templates from which they are rendered (and which we
-will be overriding):
+Here's a non-exhaustive list of files used by SCAG and templates from which they
+are rendered (and which we will be overriding):
 
-- File ``.scag/Dockerfile`` is responsible of creating initial (not signed)
-  image. Rendered from ``Dockerfile`` template.
+- File ``.scag/Dockerfile`` is responsible for creating initial (not signed)
+  image. Rendered from ``Dockerfile`` template (in the root directory of
+  respective templates directory).
 
 - File ``.scag/Dockerfile-final`` is responsible for replacing
   ``app.manifest.sgx`` and ``app.sig`` (SIGSTRUCT) inside the container.
@@ -85,15 +85,16 @@ will be overriding):
 
   .. important::
 
-      You need to know if the framework uses it's own manifest template, because
+      You need to know if the framework uses its own manifest template, because
       if it does, you need to override the framework-specific template.
       Overriding global template won't work.
 
 Example
 -------
 
-The following file can be placed in ``template/Dockerfile`` to change the
-message printed by ``hello_world.py`` script in demo app from ``python_plain``:
+The following file can be placed in :file:`{<project_dir>}/templates/Dockerfile`
+to change the message printed by ``hello_world.py`` script in demo app from
+``python_plain``:
 
 .. code-block:: jinja
 
