@@ -1,9 +1,9 @@
 .. program:: scag-client
 .. _scag-client:
 
-***************************************************************
-:program:`scag-client` -- HTTP client with attestation verifier
-***************************************************************
+****************************************************************
+:program:`scag-client` -- HTTPS client with attestation verifier
+****************************************************************
 
 Synopsis
 ========
@@ -17,12 +17,31 @@ Description
 :program:`scag-client` is a curl-like tool for querying REST (HTTP) APIs exposed
 by enclaves. The endpoint is a standard HTTPS URL, as supported by the enclave.
 
+Several SCAG frameworks include Nginx reverse proxy that terminates TLS (HTTPS)
+connection and then pass the unencrypted HTTP connection to the actual
+application, all protected inside SGX enclave. The X.509 certificate used for
+accepting external connections is obtained from RA-TLS library (``attest``
+part). This certificate is unusual: it's self-signed, but it has special
+extension that contains SGX Quote, which can be used to verify that the key pair
+associated with the certificate was generated inside real SGX enclave.
+
+Because of this exotic PKI arrangement you can't use vanilla ``curl``, because
+``curl`` expects WebPKI certs chaining to public CA/TSP. ``scag-client`` is
+using the other RA-TLS library (``verify``) to check those special X.509
+certificates and, if they're OK, then pass the HTTP Request and obtain Response.
+
+This tool is in fact a generic HTTPS+RA-TLS client and can be used with any
+enclave that exposes HTTP(S) API and uses RA-TLS for remote attestation. To use
+it for other enclaves, not built with Gramine Scaffolding, you can write your
+own config file (see below).
+
 Options
 =======
 
 .. option:: --config <file>, -f <file>
 
-    Path to :ref:`scag-client.toml <scag-client-toml>` config file that will be read.
+    Path to :ref:`scag-client.toml <scag-client-toml>` config file that will be
+    read.
 
 .. option:: --project_dir <path>, -C <path>
 
@@ -122,10 +141,10 @@ DCAP configuration
     Configuration pertaining to DCAP attestation.
 
 ``dcap.mrenclave`` (string of hex digits)
-    Expected MRENCLAVE. If not given, MRENCLAVE is not checked.,
+    Expected MRENCLAVE. If not given, MRENCLAVE is not checked.
 
 ``dcap.mrsigner`` (string of hex digits)
-    Expected MRSIGNER. If not given, MRSIGNER is not checked.,
+    Expected MRSIGNER. If not given, MRSIGNER is not checked.
 
 ``dcap.isv-prod-id`` (number)
     Expected ISV_PROD_ID. If not given, ISV_PROD_ID is not checked.
@@ -156,10 +175,10 @@ EPID configuration
     Key to IAS REST API. Mandatory.
 
 ``epid.mrenclave`` (string of hex digits)
-    Expected MRENCLAVE. If not given, MRENCLAVE is not checked.,
+    Expected MRENCLAVE. If not given, MRENCLAVE is not checked.
 
 ``epid.mrsigner`` (string of hex digits)
-    Expected MRSIGNER. If not given, MRSIGNER is not checked.,
+    Expected MRSIGNER. If not given, MRSIGNER is not checked.
 
 ``epid.isv-prod-id`` (number)
     Expected ISV_PROD_ID. If not given, ISV_PROD_ID is not checked.

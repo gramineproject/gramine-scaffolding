@@ -1,9 +1,9 @@
 .. program:: scag-setup
 .. _scag-setup:
 
-*********************************************************************
-:program:`scag-setup` -- Build Gramine Scaffolding application
-*********************************************************************
+**************************************************************
+:program:`scag-setup` -- Setup Gramine Scaffolding application
+**************************************************************
 
 Synopsis
 ========
@@ -109,7 +109,8 @@ Java Gradle build system
 Files
 =====
 
-Example of the generated file:
+Example of the generated file (from
+``scag-quickstart --framework=python_plain --application=hello_world.py``):
 
 .. code-block:: toml
 

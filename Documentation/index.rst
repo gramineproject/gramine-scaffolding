@@ -12,7 +12,7 @@
 .. toctree::
     :maxdepth: 1
     :caption: Manpages:
-    
+
     manpages/scag-quickstart
     manpages/scag-setup
     manpages/scag-build
