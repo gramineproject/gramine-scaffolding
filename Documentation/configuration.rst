@@ -31,7 +31,9 @@ General options
     directory.
 
 ``sgx.sign_args`` (array of strings)
-    Extra arguments to :command:`gramine-sgx-sign` command. Can be used to
+    Extra arguments to :command:`gramine-sgx-sign` command (in addition to
+    ``--manifest``, ``--output``, ``--sigfile`` and ``--chroot``, which are
+    supplied by SCAG internals, and which you cannot override). Can be used to
     specify alternative RSA key, or use plugins.
 
     .. code-block::
@@ -42,7 +44,7 @@ General options
 ``sgx.debug`` (bool, default false)
     INSECURE. Build debug enclave. Debug enclaves do not give any security
     guarantees and should fail attestation, but can be used for debugging
-    running application.
+    an application while running in a real enclave.
 
     This option mirrors ``sgx.debug`` option in Gramine manifest.
 

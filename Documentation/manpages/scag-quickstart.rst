@@ -46,6 +46,12 @@ configuration, it is recommended to use the :doc:`scag-setup`, and
 :doc:`scag-build` tools. These tools provide programmatic interfaces and more
 extensive options for customization.
 
+Exit status
+===========
+
+On success, exits with 0. On failures, exits non-zero and prints diagnostics to
+stderr.
+
 Example
 =======
 

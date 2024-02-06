@@ -15,7 +15,9 @@ Description
 ===========
 
 This program detects whether SGX is properly configured on the machine. If not,
-will report 
+will report any problems. Those problems, if any, typically mean that you can
+develop SGX applications on this machine (incl. those packaged with SCAG), but
+you cannot run SGX enclaves, even debug ones.
 
 Options
 =======
