@@ -3,12 +3,8 @@
 {% block install %}
 {{ super() }}
 {{ apt_install(
-    'python3.11',
+    'openjdk-17-jre-headless',
 ) }}
 {% endblock %}
-
-{% block manifest_args -%}
-    -Dapplication={{ application | shquote }}
-{%- endblock %}
 
 {#- vim: set ft=jinja : #}
