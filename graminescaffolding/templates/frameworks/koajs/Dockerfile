@@ -3,8 +3,11 @@
 {% block install %}
 {{ super() }}
 {{ apt_install(
-    'python3.11',
+    'nodejs',
+    'npm',
+    'nginx',
 ) }}
+RUN npm install
 {% endblock %}
 
 {% block manifest_args -%}

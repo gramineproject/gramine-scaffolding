@@ -3,12 +3,12 @@
 {% block install %}
 {{ super() }}
 {{ apt_install(
+    'nginx',
+    'python3-flask',
     'python3.11',
+    'uwsgi',
+    'uwsgi-plugin-python3',
 ) }}
 {% endblock %}
-
-{% block manifest_args -%}
-    -Dapplication={{ application | shquote }}
-{%- endblock %}
 
 {#- vim: set ft=jinja : #}

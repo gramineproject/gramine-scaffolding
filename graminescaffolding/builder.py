@@ -46,11 +46,21 @@ WANT_FILES = types.MappingProxyType({
         'mmdebstrap-hooks/customize.sh',
     ),
 
+    'Dockerfile-rootfs': (
+        'Dockerfile-rootfs',
+    ),
+
     'Dockerfile': (
+        'frameworks/{framework}/Dockerfile',
         'Dockerfile',
     ),
 
+    'Dockerfile.dockerignore': (
+        'Dockerfile.dockerignore',
+    ),
+
     'Dockerfile-final': (
+        'frameworks/{framework}/Dockerfile-final',
         'Dockerfile-final',
     ),
 })
@@ -115,7 +125,6 @@ def extract_mrenclave_from_path(path):
 class Builder:
     framework = None
     extra_files = types.MappingProxyType({})
-    depends = ()
     bootstrap_defaults = ()
     extra_run_args = ()
     BINARY_EXT = (
@@ -125,8 +134,8 @@ class Builder:
 
     def __init__(self, project_dir, config):
         self.project_dir = pathlib.Path(project_dir)
-        self.magic_dir = self.project_dir / SCAG_MAGIC_DIR
-        self.rootfs_tar = self.magic_dir / 'rootfs.tar'
+        self.scag_dir = self.project_dir / SCAG_MAGIC_DIR
+        self.rootfs_tar = self.scag_dir / 'rootfs.tar'
         if config['application']['framework'] != self.framework:
             raise ValueError(
                 f'expected framework {self.framework!r}, '
@@ -141,6 +150,7 @@ class Builder:
     @property
     def docker(self):
         if self._docker_client is None:
+            os.environ['DOCKER_BUILDKIT'] = '1'
             self._docker_client = docker.from_env()
         return self._docker_client
 
@@ -161,6 +171,7 @@ class Builder:
         templates.globals['scag'] = _templates.globals['scag'].copy()
         templates.globals['scag'].update({
             'builder': self,
+            'magic_dir': SCAG_MAGIC_DIR,
         })
         templates.globals['sgx'] = self.config.get('sgx',
             types.MappingProxyType({}))
@@ -219,7 +230,10 @@ class Builder:
         # TODO allow running only some steps
         self.render_templates()
         self.create_chroot()
-        image_unsigned = self.build_docker_image()
+        root_image = self.build_docker_image(
+            dockerfile='.scag/Dockerfile-rootfs')
+        image_unsigned = self.build_docker_image(
+            buildargs={'FROM': root_image.id})
         image, mrenclave = self.sign_docker_image(image_unsigned)
         self.render_client_config(mrenclave)
         return image.id
@@ -237,35 +251,38 @@ class Builder:
         for path, template_names in want_files.items():
             self._render_template_to_path(
                 [t.format(framework=self.framework) for t in template_names],
-                self.magic_dir / path)
+                self.scag_dir / path)
 
 
     def render_client_config(self, mrenclave):
         self._render_template_to_path(
             'scag-client.toml',
-            self.magic_dir / 'scag-client.toml',
+            self.scag_dir / 'scag-client.toml',
             mrenclave=mrenclave)
 
 
     def create_chroot(self):
         """
-        Step: create chroot using mmdebstrap and signs it
+        Step: create chroot using mmdebstrap
         """
+
+        # XXX: we probably want a force flag to rebuild rootfs
+        if os.path.isfile(self.rootfs_tar):
+            return
+
         subprocess.run([
             'mmdebstrap',
             '--mode=unshare',
             '--keyring', utils.KEYS_PATH / 'trusted.gpg.d',
             '--include', get_gramine_dependency(),
-            *(f'--include={dep}' for dep in self.depends),
-
             '--setup-hook',
-                f'sh {self.magic_dir / "mmdebstrap-hooks/setup.sh"} "$@"',
+                f'sh {self.scag_dir / "mmdebstrap-hooks/setup.sh"} "$@"',
             '--customize-hook',
-                f'sh {self.magic_dir / "mmdebstrap-hooks/customize.sh"} "$@"',
+                f'sh {self.scag_dir / "mmdebstrap-hooks/customize.sh"} "$@"',
 
             CODENAME,
             self.rootfs_tar,
-            self.magic_dir / 'sources.list',
+            self.scag_dir / 'sources.list',
         ], check=True)
 
 
@@ -333,8 +350,8 @@ class Builder:
 
                 msgx, sig = self.sign_chroot(tmprootdir)
 
-        (self.magic_dir / 'app.manifest.sgx').write_bytes(msgx)
-        (self.magic_dir / 'app.sig').write_bytes(sig)
+        (self.scag_dir / 'app.manifest.sgx').write_bytes(msgx)
+        (self.scag_dir / 'app.sig').write_bytes(sig)
         image2 = self.build_docker_image(
             dockerfile='.scag/Dockerfile-final',
             buildargs={'FROM': image.id})
@@ -384,9 +401,6 @@ class Builder:
 
 class PythonBuilder(Builder):
     framework = 'python_plain'
-    depends = (
-        'python3.11',
-    )
     bootstrap_defaults = (
         '--application=hello_world.py',
     )
@@ -415,13 +429,6 @@ class PythonBuilder(Builder):
 
 class FlaskBuilder(Builder):
     framework = 'flask'
-    depends = (
-        'nginx',
-        'python3-flask',
-        'python3.11',
-        'uwsgi',
-        'uwsgi-plugin-python3',
-    )
     extra_files = {
         'etc/nginx.conf': (
             'frameworks/{framework}/nginx-uwsgi.conf',
@@ -434,9 +441,6 @@ class FlaskBuilder(Builder):
 
 class NodejsBuilder(Builder):
     framework = 'nodejs_plain'
-    depends = (
-        'nodejs',
-    )
     bootstrap_defaults = (
         '--application=app.js',
     )
@@ -466,11 +470,6 @@ class NodejsBuilder(Builder):
 
 class ExpressjsBuilder(Builder):
     framework = 'expressjs'
-    depends = (
-        'nodejs',
-        'npm',
-        'nginx',
-    )
     bootstrap_defaults = (
         '--application=index.js',
     )
@@ -502,11 +501,6 @@ class ExpressjsBuilder(Builder):
 
 class KoajsBuilder(Builder):
     framework = 'koajs'
-    depends = (
-        'nodejs',
-        'npm',
-        'nginx',
-    )
     bootstrap_defaults = (
         '--application=index.js',
     )
@@ -541,9 +535,6 @@ class KoajsBuilder(Builder):
 
 class JavaJARBuilder(Builder):
     framework = 'java_jar'
-    depends = (
-        'openjdk-17-jre-headless',
-    )
     bootstrap_defaults = (
         '--application=hello_world.jar',
     )
@@ -573,11 +564,6 @@ class JavaJARBuilder(Builder):
 
 class JavaGradleBuilder(Builder):
     framework = 'java_gradle'
-    depends = (
-        'gradle',
-        'openjdk-17-jdk',
-        'openjdk-17-jre-headless',
-    )
     bootstrap_defaults = (
         '--application=build/libs/hello_world.jar',
     )
@@ -607,10 +593,6 @@ class JavaGradleBuilder(Builder):
 
 class DotnetBuilder(Builder):
     framework = 'dotnet'
-    depends = (
-        'dotnet-sdk-7.0',
-        'ca-certificates',
-    )
     bootstrap_defaults = (
         '--build_config=Release',
         '--project_file=hello_world.csproj',
