@@ -123,3 +123,9 @@ Example of the generated file (from
 
     [python_plain]
     application = "hello_world.py"
+
+Exit status
+===========
+
+On success, exits with 0. On failures, exits non-zero and prints diagnostics to
+stderr.

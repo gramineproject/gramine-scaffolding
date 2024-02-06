@@ -11,8 +11,20 @@ which directs the whole process of building the container. The build is composed
 of steps:
 
 1. Templates are rendered into ``.scag/`` directory.
-2. System image is installed into chroot directory.
-3. Image is customised and signed.
+2. Base system image is installed into temporary chroot directory and is
+   archived into temporary tarball ``.scag/rootfs.tar``.
+3. A base system docker is created from ``rootfs.tar`` (see
+   ``Dockerfile-rootfs`` template, rendered to ``.scag/Dockerfile-rootfs``).
+4. Main docker image is built (from ``Dockerfile`` template, rendered to
+   ``.scag/Dockerfile``). This is the step that varies the most according to
+   specific framework. ``gramine-manifest`` is run at the end of this stage.
+5. Contents of this customised docker image is extracted into temporary
+   directory and ``gramine-sgx-sign`` is ran *outside of the docker build
+   process*.
+4. Artifacts from ``gramine-sgx-sign`` (``app.manifest.sgx`` and ``app.sig``)
+   are used to build third Docker container, based on the second (cusomised)
+   one. The manifest and SIGSTRUCT are added to this container. This is the
+   final container that can be shipped.
 
 Templates are found in
 :file:`graminescaffolding/templates/framework/{<framework>}` directory or
@@ -22,8 +34,8 @@ of the project. There are a few common templates that are rendered for every
 build (like ``app.manifest.template`` and ``Dockerfile``), and frameworks may
 render additional templates as required.
 
-Steps 2-3 are executed as single command, ``mmdebstrap``. ``mmdebstrap`` is
-a tool for creating Debian-based system images. The process is customisable with
+Step 2 is executed as single command, ``mmdebstrap``. ``mmdebstrap`` is a tool
+for creating Debian-based system images. The process is customisable with
 *hooks*. There are two hooks used by scaffolding:
 
 - ``setup`` (rendered as :file:`.scag/mmdebstrap-hooks/setup.sh`): Runs very
@@ -32,12 +44,9 @@ a tool for creating Debian-based system images. The process is customisable with
   builds.
 
 - ``customize`` (rendered as :file:`.scag/mmdebstrap-hooks/customize.sh`): Runs
-  after all deb packages have been installed. This is step 3: it copies the app
-  to :file:`/app` inside the chroot, then renders the manifest inside the chroot
-  using ``gramine-manifest`` and signs the enclave with ``gramine-sgx-sign``.
-
-  If you want to adjust ``gramine-manifest`` invocation in the new framework,
-  you can inherit from this template and adjust ``{% block manifest_args %}``.
+  after all deb packages have been installed. Normally not needed, all
+  customisation happens in ``Dockerfile``, but might be used for exotic setups
+  which need to be cached in ``rootfs.tar`` instead of Docker layers.
 
 All hooks are executed with the first argument being the path to temporary
 chroot directory, so if you need to run something inside chroot, you should
@@ -85,12 +94,16 @@ Template variables
 
 ``scag.builder``
     Reference to the instance of `Builder`. `Builder` has useful attributes:
-    `project_dir`, `magic_dir` (also `variables`, but those are primarily
-    available as globals).
+    `project_dir`, `scag_dir` (also `variables`, but those are
+    primarily available as globals).
 
 ``scag.keys_path``
     Path to directory that ships Gramine and Intel release keys. Used in
     ``setup.sh`` hook.
+
+``scag.magic_dir``
+    Directory that contains all files generated during the build phase.
+    This path is constant, so it can be safely used in a Dockerfile.
 
 ``sgx.*``
     Available as ``sgx.*`` global directory in templates. Used for
@@ -109,3 +122,12 @@ Template filters
     .. code-block:: dockerfile
 
         RUN cp {{ source | shquote }} {{ destination | shquote }}
+
+Template macros
+---------------
+
+``apt_install(package[, package2[, ...]])``
+    Defined in ``Dockerfile`` template (available also if you
+    ``{% extends 'Dockerfile' %}``). ``{{ apt.install('pkg1', 'pkg2', ...)``
+    will emit ``RUN apt-get ...`` invocation that will correctly install the
+    set of packages given as arguments.
