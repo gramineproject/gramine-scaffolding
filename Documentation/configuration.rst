@@ -90,7 +90,7 @@ Options specific to ``flask`` framework
 (none)
 
 Options specific to ``java_gradle`` framework
-------------------------------------------
+---------------------------------------------
 
 ``java_gradle.application`` (string)
     Path to the JAR file inside application's directory.
