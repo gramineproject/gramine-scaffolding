@@ -16,13 +16,19 @@ manifest. This guide will show how to override the Dockerfile for
 ``python-plain`` framework's helloworld example.
 
 What templates are rendered for a particular app is defined by the framework,
-but there are some templates common to all frameworks, like ``Dockerfile`` or
-``app.manifest.template``. If you need to override a template specific to
-a framework, unfortunately you need to look into SCAG source to find the exact
-template name.
+but there are some templates common to all frameworks, like
+:file:`scag-client.toml`. Some have common rendered path, but are almost always
+rendered from framework-specific template (like
+:file:`.scag/app.manifest.template` rendered from
+:file:`frameworks/{<framework>}/app.manifest.template`) or have a common base
+template, but frameworks inherit from base template and customise it in some way
+(this is the case of :file:`.scag/Dockerfile` rendered from
+:file:`frameworks/{<framework>}/Dockerfile`, all of which ``{% extends
+'Dockerfile' %}`` ). If you need to override a template specific to a framework,
+unfortunately you need to look into SCAG source to find the exact template name.
 
 SCAG uses `Jinja templates <https://jinja.palletsprojects.com/>`__. Introduction
-of this template language is outside of scope for this document, which will
+to this template language is outside of scope for this document, which will
 only describe concepts needed to explain, how SCAG uses those templates.
 
 Template names, paths and inheritance
@@ -69,8 +75,8 @@ Here's a non-exhaustive list of files used by SCAG and templates from which they
 are rendered (and which we will be overriding):
 
 - File ``.scag/Dockerfile`` is responsible for creating initial (not signed)
-  image. Rendered from ``Dockerfile`` template (in the root directory of
-  respective templates directory).
+  image. Rendered from ``framework/<framework>/Dockerfile`` or ``Dockerfile``
+  template (in the root directory of respective templates directory).
 
 - File ``.scag/Dockerfile-final`` is responsible for replacing
   ``app.manifest.sgx`` and ``app.sig`` (SIGSTRUCT) inside the container.
@@ -92,14 +98,64 @@ are rendered (and which we will be overriding):
 Example
 -------
 
-The following file can be placed in :file:`{<project_dir>}/templates/Dockerfile`
+The following file can be placed in
+:file:`{<project_dir>}/templates/frameworks/python_plain/Dockerfile`
 to change the message printed by ``hello_world.py`` script in demo app from
 ``python_plain``:
 
 .. code-block:: jinja
 
-    {% extends '!Dockerfile' %}
+    {% extends '!frameworks/python_plain/Dockerfile' %}
 
-    {% block local %}
+    {% block build %}
+    {{ super() }}
+
     RUN sed -i -e s/world/asdfg/ /app/hello_world.py
     {% endblock %}
+
+Template variables
+------------------
+
+``scag.*``
+    Dictionary with system-wide, readonly variables. Those can't be overridden
+    by user-level variables, nor they should be, as they are e.g., system paths.
+
+``scag.builder``
+    Reference to the instance of `Builder`. `Builder` has useful attributes:
+    `project_dir`, `scag_dir` (also `variables`, but those are
+    primarily available as globals).
+
+``scag.keys_path``
+    Path to directory that ships Gramine and Intel release keys. Used in
+    ``setup.sh`` hook.
+
+``scag.magic_dir``
+    Directory that contains all files generated during the build phase.
+    This path is constant, so it can be safely used in a Dockerfile.
+
+``sgx.*``
+    Available as ``sgx.*`` global directory in templates. Used for
+    ``sgx.sign_args``.
+
+All values in ``[<framework>]`` section in :file:`scag.toml` are available as
+global variables.
+
+Template filters
+----------------
+
+``shquote``
+    Quotes shell strings (see :py:func:`shlex.quote`). Useful in
+    templates. For example, if you need a path passed to a shell command:
+
+    .. code-block:: dockerfile
+
+        RUN cp {{ source | shquote }} {{ destination | shquote }}
+
+Template macros
+---------------
+
+``apt_install(package[, package2[, ...]])``
+    Defined in ``Dockerfile`` template (available if you
+    ``{% extends 'Dockerfile' %}``). ``{{ apt_install('pkg1', 'pkg2', ...)``
+    will emit ``RUN apt-get ...`` invocation that will correctly install the
+    set of packages given as arguments.

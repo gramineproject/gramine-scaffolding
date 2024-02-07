@@ -207,20 +207,13 @@ EPID configuration
 
 ``epid.ias-pub-key-pem`` (string)
     Public key for IAS in PEM format (multi-line string starting with
-    ``-----BEGIN PUBLIC KEY-----``)
+    ``-----BEGIN PUBLIC KEY-----``).
 
 MAA configuration
 -----------------
 
 ``maa.*`` (table)
     Configuration pertaining to MAA attestation.
-
-``maa.maa-provider-url`` (string)
-    URL to MAA REST API. Mandatory.
-
-``maa.maa-provider-api-version`` (number)
-    Version of the MAA API. See ``libra_tls_verify_maa`` documentation for more
-    info.
 
 ``maa.mrenclave`` (string of hex digits)
     Expected MRENCLAVE. If not given, MRENCLAVE is not checked.
@@ -236,6 +229,13 @@ MAA configuration
 
 ``maa.allow-debug-enclave-insecure`` (bool, default false)
     INSECURE, DO NOT USE IN PRODUCTION! Allow debug enclaves to be attested.
+
+``maa.maa-provider-url`` (string)
+    URL to MAA REST API.
+
+``maa.maa-provider-api-version`` (number)
+    Version of the MAA API. See ``libra_tls_verify_maa`` documentation for more
+    info.
 
 Exit status
 ===========
