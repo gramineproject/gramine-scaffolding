@@ -111,7 +111,7 @@ Configuration file: :file:`scag-client.toml`
 
 This file is written by :ref:`scag-build` and read in :ref:`scag-client`. It
 contains default values that configure the attestation environment, like
-type of attestation (DCAP, EPID, or MAA), expected MRENCLAVE and other
+type of attestation (DCAP, EPID, ITA or MAA), expected MRENCLAVE and other
 options.
 
 The file is searched in three locations, in following order:
@@ -132,6 +132,7 @@ General configuration
 
     - ``DCAP``
     - ``EPID``
+    - ``ITA``
     - ``MAA``.
 
 DCAP configuration
@@ -208,6 +209,53 @@ EPID configuration
 ``epid.ias-pub-key-pem`` (string)
     Public key for IAS in PEM format (multi-line string starting with
     ``-----BEGIN PUBLIC KEY-----``).
+
+ITA configuration
+-----------------
+
+``ita.*`` (table)
+    Configuration pertaining to ITA attestation.
+
+``ita.ita-api-key`` (string)
+    Key to ITA API. Mandatory.
+
+``ita.mrenclave`` (string of hex digits)
+    Expected MRENCLAVE. If not given, MRENCLAVE is not checked.
+
+``ita.mrsigner`` (string of hex digits)
+    Expected MRSIGNER. If not given, MRSIGNER is not checked.
+
+``ita.isv-prod-id`` (number)
+    Expected ISV_PROD_ID. If not given, ISV_PROD_ID is not checked.
+
+``ita.isv-svn`` (number)
+    Expected ISV_SVN. If not given, ISV_SVN is not checked.
+
+``ita.allow-debug-enclave-insecure`` (bool, default false)
+    INSECURE, DO NOT USE IN PRODUCTION! Allow debug enclaves to be attested.
+
+``ita.allow-outdated-tcb-insecure`` (bool, default false)
+    INSECURE, DO NOT USE IN PRODUCTION! Allow enclaves executed on CPUs with
+    outdated microcode.
+
+``ita.allow-hw-config-needed`` (bool, default false)
+    Allow HW_CONFIG_NEEDED response.
+
+``ita.allow-sw-hardening-needed`` (bool, default false)
+    Allow SW_HARDENING_NEEDED response.
+
+``ita.ita-portal-url`` (string, default ``"https://portal.trustauthority.intel.com"``)
+    URL to ITA portal.
+
+``ita.ita-provider-url`` (string, default ``"https://api.trustauthority.intel.com"``)
+    URL to ITA API.
+
+``ita.ita-provider-api-version`` (string)
+    ITA API version. Unset means it's ``v1``.
+
+``ita.ita-policy-ids`` (array of strings)
+    Attestation policy IDs associated with API key. If not given, only the
+    default policy that verifies SGX is evaluated.
 
 MAA configuration
 -----------------
