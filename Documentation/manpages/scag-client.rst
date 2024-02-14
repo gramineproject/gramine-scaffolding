@@ -92,7 +92,7 @@ Configuration file: :file:`scag-client.toml`
 
 This file is written by :ref:`scag-build` and read in :ref:`scag-client`. It
 contains default values that configure the attestation environment, like
-type of attestation (DCAP, EPID, or MAA), expected MRENCLAVE and other
+type of attestation (DCAP, EPID, ITA or MAA), expected MRENCLAVE and other
 options.
 
 The file is searched in three locations, in following order:
@@ -113,6 +113,7 @@ General configuration
 
     - ``DCAP``
     - ``EPID``
+    - ``ITA``
     - ``MAA``.
 
 DCAP configuration
@@ -122,10 +123,10 @@ DCAP configuration
     Configuration pertaining to DCAP attestation.
 
 ``dcap.mrenclave`` (string of hex digits)
-    Expected MRENCLAVE. If not given, MRENCLAVE is not checked.,
+    Expected MRENCLAVE. If not given, MRENCLAVE is not checked.
 
 ``dcap.mrsigner`` (string of hex digits)
-    Expected MRSIGNER. If not given, MRSIGNER is not checked.,
+    Expected MRSIGNER. If not given, MRSIGNER is not checked.
 
 ``dcap.isv-prod-id`` (number)
     Expected ISV_PROD_ID. If not given, ISV_PROD_ID is not checked.
@@ -156,10 +157,10 @@ EPID configuration
     Key to IAS REST API. Mandatory.
 
 ``epid.mrenclave`` (string of hex digits)
-    Expected MRENCLAVE. If not given, MRENCLAVE is not checked.,
+    Expected MRENCLAVE. If not given, MRENCLAVE is not checked.
 
 ``epid.mrsigner`` (string of hex digits)
-    Expected MRSIGNER. If not given, MRSIGNER is not checked.,
+    Expected MRSIGNER. If not given, MRSIGNER is not checked.
 
 ``epid.isv-prod-id`` (number)
     Expected ISV_PROD_ID. If not given, ISV_PROD_ID is not checked.
@@ -188,6 +189,49 @@ EPID configuration
 
 ``epid.ias-pub-key-pem``
     TODO
+
+ITA configuration
+-----------------
+
+``ita.*`` (table)
+    Configuration pertaining to ITA attestation.
+
+``ita.ita-api-key`` (string)
+    Key to ITA API. Mandatory.
+
+``ita.mrenclave`` (string of hex digits)
+    Expected MRENCLAVE. If not given, MRENCLAVE is not checked.
+
+``ita.mrsigner`` (string of hex digits)
+    Expected MRSIGNER. If not given, MRSIGNER is not checked.
+
+``ita.isv-prod-id`` (number)
+    Expected ISV_PROD_ID. If not given, ISV_PROD_ID is not checked.
+
+``ita.isv-svn`` (number)
+    Expected ISV_SVN. If not given, ISV_SVN is not checked.
+
+``ita.allow-debug-enclave-insecure`` (bool, default false)
+    INSECURE, DO NOT USE IN PRODUCTION! Allow debug enclaves to be attested.
+
+``ita.allow-outdated-tcb-insecure`` (bool, default false)
+    INSECURE, DO NOT USE IN PRODUCTION! Allow enclaves executed on CPUs with
+    outdated microcode.
+
+``ita.allow-hw-config-needed`` (bool, default false)
+    Allow HW_CONFIG_NEEDED response.
+
+``ita.allow-sw-hardening-needed`` (bool, default false)
+    Allow SW_HARDENING_NEEDED response.
+
+``ita.ita-portal-url`` (string, default ``"https://portal.trustauthority.intel.com"``)
+    URL to ITA portal.
+
+``ita.ita-provider-url`` (string, default ``"https://api.trustauthority.intel.com"``)
+    URL to ITA API.
+
+``ita.ita-provider-api-version`` (string)
+    ITA API version. Unset means it's ``v1``.
 
 MAA configuration
 -----------------
