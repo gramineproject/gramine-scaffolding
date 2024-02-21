@@ -96,10 +96,12 @@ def get_gramine_dependency():
 
 
 def _extract_mrenclave_from_file(file):
+    # SDM vol. 3D part 4, 38.13, table 38-19
     file.seek(960)
     return file.read(32)
 
 def extract_mrenclave_from_bytes(sigstruct):
+    # SDM vol. 3D part 4, 38.13, table 38-19
     return sigstruct[960:960+32]
 
 def extract_mrenclave_from_tar(file, sigstruct_path='./app/app.sig'):
@@ -120,14 +122,13 @@ def extract_mrenclave_from_path(path):
     with open(path, 'rb') as file:
         return _extract_mrenclave_from_file(file)
 
-# TODO replace SIGSTRUCT, using sgx-sign plugins
 
 class Builder:
     framework = None
     extra_files = types.MappingProxyType({})
     bootstrap_defaults = ()
     extra_run_args = ()
-    BINARY_EXT = (
+    binary_ext = (
         '.jar',
     )
     extra_templates_path = None
@@ -216,7 +217,7 @@ class Builder:
         for template in self.templates.list_templates(
                 filter_func=lambda name: name.startswith(prefix)):
             dest = self.project_dir / template.removeprefix(prefix)
-            if template.endswith(self.BINARY_EXT):
+            if template.endswith(self.binary_ext):
                 self._copy_binary_template_to_path(f'templates/{template}',
                     dest)
             else:
@@ -288,8 +289,7 @@ class Builder:
 
     def sign_chroot(self, rootdir, manifest_path='app/app.manifest'):
         """
-        Signs tarball of the system image. Manifest needs to be in
-        /app/app.manifest
+        Signs tarball of the system image.
 
         Args:
             file: file object of the tarball
@@ -431,7 +431,7 @@ class FlaskBuilder(Builder):
     framework = 'flask'
     extra_files = {
         'etc/nginx.conf': (
-            'frameworks/{framework}/nginx-uwsgi.conf',
+            'nginx/nginx-uwsgi.conf',
         ),
     }
     extra_run_args = (
@@ -475,7 +475,7 @@ class ExpressjsBuilder(Builder):
     )
     extra_files = {
         'etc/nginx.conf': (
-            'frameworks/nginx/nginx.conf',
+            'nginx/nginx.conf',
         ),
     }
     extra_run_args = (
@@ -509,7 +509,7 @@ class KoajsBuilder(Builder):
     )
     extra_files = {
         'etc/nginx.conf': (
-            'frameworks/nginx/nginx.conf',
+            'nginx/nginx.conf',
         ),
     }
     extra_run_args = (

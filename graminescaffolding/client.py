@@ -19,7 +19,7 @@ def request(method, url, *, verify_cb, headers=types.MappingProxyType({}),
         data=None):
     url = urllib.parse.urlsplit(url)
     if url.scheme != 'https':
-        raise ValueError(f'needs https:// URI, found {url.scheme}://')
+        raise ValueError(f'need https:// URI, found {url.scheme}://')
 
     context = ssl._create_unverified_context() #pylint: disable=protected-access
     conn = http.client.HTTPSConnection(url.netloc, context=context)
@@ -74,7 +74,7 @@ def ra_tls_verify_callback_der(scheme, der):
     proc.start()
     proc.join()
 
-    if ret.value < 0:
+    if ret.value != 0:
         raise AttestationError(ret)
 
 

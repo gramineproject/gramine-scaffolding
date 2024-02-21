@@ -47,6 +47,8 @@ fs.mounts = [
     { path = "/usr/lib", uri = "file:/usr/lib" },
 
     { path = "/tmp", type = "tmpfs" },
+
+    {# paths for nginx working directories, see nginx.conf -#}
     { path = "/tmp/nginx/body", type = "tmpfs" },
     { path = "/tmp/nginx/fastcgi", type = "tmpfs" },
     { path = "/tmp/nginx/proxy", type = "tmpfs" },

@@ -5,9 +5,6 @@ loader.entrypoint = "file:{{ gramine.libos }}"
 
 libos.entrypoint = "/app/bin/{{ build_config }}/net7.0/{{ target }}"
 
-loader.pal_internal_mem_size = "128M"
-loader.log_level = "error"
-
 # TODO: add app-specific command line arguments
 #loader.argv =
 
@@ -26,7 +23,7 @@ fs.mounts = [
     { uri = "file:/etc", path = "/etc" },
     { type = "tmpfs", path = "/tmp" },
     { uri = "file:/app", path = "/app" },
-    { uri = "file:/root", path = "/root" },
+    { type = "tmpfs", path = "/root" },
     { uri = "file:{{ dotnet }}", path = "{{ dotnet }}" },
 ]
 
@@ -50,17 +47,13 @@ sgx.trusted_files = [
 
     "file:/etc/localtime",
 
-    # TODO: these are only needed for network access
+    # TODO: sys.enable_extra_runtime_domain_names_conf = true
     "file:/etc/hosts",
     "file:/etc/host.conf",
     "file:/etc/nsswitch.conf",
     "file:/etc/resolv.conf",
     "file:/etc/passwd",
     "file:/etc/ssl/",
-]
-
-sgx.allowed_files = [
-    "file:/root/",
 ]
 
 # TODO: customize

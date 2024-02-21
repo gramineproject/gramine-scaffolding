@@ -14,7 +14,6 @@ import tomli
 
 import click
 
-#from .frameworks.common.builder import GramineBuilder
 from . import (
     builder as _builder,
     client as _client,
@@ -109,8 +108,8 @@ def setup_handle_project_dir(ctx, project_dir, bootstrap):
     def cli_version(project_dir, bootstrap):
         if not os.path.exists(project_dir):
             if not bootstrap:
-                raise ValueError('The directory doesn\'t exist. Please create a '
-                    'directory or use the --bootstrap option.')
+                raise ValueError('The project directory doesn\'t exist. Please '
+                    'create a directory or use the --bootstrap option.')
             return bootstrap
 
         if not os.path.isdir(project_dir):
@@ -133,7 +132,7 @@ def setup_handle_project_dir(ctx, project_dir, bootstrap):
     prompt='Which framework you want to use?',
     help='The framework used by the scaffolded application.')
 @gramine_option_prompt('--project_dir', required=True, type=str,
-    default=os.getcwd(), prompt='Your\'s app directory is',
+    default=os.getcwd(), prompt='Your app directory is',
     help='The directory of the application to scaffold.')
 @gramine_option_prompt('--bootstrap', required=False, is_flag=True,
     default=False, help='Bootstrap directory with framework example.')
@@ -202,7 +201,7 @@ def build(ctx, project_dir, conf, print_only_image, and_run):
 
 def build_step(ctx, project_dir, conf):
     """
-    Real steps for build Gramine application using Scaffolding framework.
+    Real steps for building Gramine application using Scaffolding framework.
     """
     project_dir = pathlib.Path(project_dir)
     confpath = project_dir / conf
@@ -212,7 +211,12 @@ def build_step(ctx, project_dir, conf):
     with open(confpath, 'rb') as file:
         data = tomli.load(file)
 
-    buildertype = gramine_load_framework(data['application']['framework'])
+    try:
+        framework = data['application']['framework']
+    except KeyError:
+        ctx.fail(f'missing application.framework= option in {confpath}')
+
+    buildertype = gramine_load_framework(framework)
     builder = buildertype(project_dir, data)
 
     docker_id = builder.build()
@@ -238,7 +242,7 @@ def build_step(ctx, project_dir, conf):
 @click.option('--mrenclave',
     help='Specify different mrenclave')
 @click.option('--mrsigner',
-    help='Specify different mrenclave')
+    help='Specify different mrsigner')
 @click.option('--allow-debug-enclave-insecure/--no-allow-debug-enclave-insecure',
     help='Allow debug enclave (INSECURE)', default=None)
 @click.option('--allow-outdated-tcb-insecure/--no-allow-outdated-tcb-insecure',
@@ -283,7 +287,7 @@ def client(
     if mrenclave is not None:
         verify_cb_kwds['mrenclave'] = mrenclave
     if mrsigner is not None:
-        verify_cb_kwds['mrsigner'] = mrenclave
+        verify_cb_kwds['mrsigner'] = mrsigner
     if allow_debug_enclave_insecure is not None:
         verify_cb_kwds['allow_debug_enclave_insecure'] = (
             allow_debug_enclave_insecure)
@@ -308,5 +312,3 @@ def client(
 
 if __name__ == '__main__':
     main() # pylint: disable=no-value-for-parameter
-
-# vim: tw=80
