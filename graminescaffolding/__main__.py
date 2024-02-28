@@ -82,7 +82,7 @@ def quickstart(ctx):
     docker_id, docker_run_cmd = build_step(
         ctx, project_dir, _builder.SCAG_CONFIG_FILE)
     if not docker_id:
-        return 0
+        return 1
     print_docker_usage(docker_id, docker_run_cmd)
     if not click.confirm('Do you want to run it now?'):
         return 0
