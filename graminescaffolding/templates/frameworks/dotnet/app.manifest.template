@@ -10,8 +10,13 @@ libos.entrypoint = "/app/bin/{{ build_config }}/net7.0/{{ target }}"
 
 loader.env.LD_LIBRARY_PATH = "/lib:/usr/lib/x86_64-linux-gnu"
 
-loader.env.DOTNET_GCHeapHardLimit = "0x6400000" # TODO: adjust for the app (hex value, currently 100 MiB)
+# TODO: adjust for the app (hex value, currently 100 MiB)
+loader.env.DOTNET_GCHeapHardLimit = "0x6400000"
+
+# seems to be undocumented, but needed:
+# https://github.com/dotnet/dotnet-docker/issues/3997
 loader.env.DOTNET_RUNNING_IN_CONTAINER = "true"
+
 # home dir needed for some dotnet persistency, initialized during image build
 loader.env.DOTNET_CLI_HOME = "/root/"
 
