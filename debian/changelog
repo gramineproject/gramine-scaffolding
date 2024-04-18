@@ -1,3 +1,10 @@
+gramine-scaffolding (1.7) bookworm; urgency=medium
+
+  * Add support for ITA attestation
+  * Distribute in contrib section of main Gramine repo
+
+ -- Wojtek Porczyk <woju@invisiblethingslab.com>  Wed, 24 Apr 2024 12:51:16 +0200
+
 gramine-scaffolding (0.1) bookworm; urgency=medium
 
   * First official (numbered) release.

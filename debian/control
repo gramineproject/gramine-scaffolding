@@ -2,7 +2,7 @@ Source: gramine-scaffolding
 Priority: optional
 Maintainer: Wojtek Porczyk <woju@invisiblethingslab.com>
 Standards-Version: 4.6.1
-Section: misc
+Section: contrib/misc
 Build-Depends: debhelper-compat (= 13),
  dh-sequence-python3,
  dh-sequence-sphinxdoc,
@@ -47,7 +47,7 @@ Package: gramine-scaffolding-doc
 Architecture: all
 Description: documentation for Gramine Scaffolding
  HTML documentation for Gramine Scaffolding
-Section: doc
+Section: contrib/doc
 Depends:
  ${misc:Depends},
  ${sphinxdoc:Depends},
