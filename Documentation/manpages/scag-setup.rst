@@ -27,6 +27,10 @@ Options
     Initialize an empty directory with an example application from
     the given framework.
 
+.. option:: --gramine_unstable
+
+   Use a pre-release version of Gramine.
+
 .. option:: --framework <framework>
 
     The framework used by the scaffolded application.
@@ -120,6 +124,7 @@ Example of the generated file (from
 
     [gramine]
     passthrough_env = []
+    gramine_unstable = false
 
     [python_plain]
     application = "hello_world.py"
