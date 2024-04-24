@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "graminescaffolding"
-version = "1.7"
+version = "1.7.post0"
 authors = [
     { name = "Wojtek Porczyk", email = "woju@invisiblethingslab.com" },
     { name = "Mariusz Zaborski", email = "oshogobo@invisiblethingslab.com" },
