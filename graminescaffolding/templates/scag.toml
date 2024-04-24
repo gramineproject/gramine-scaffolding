@@ -8,6 +8,7 @@ framework = "{{ scag.builder.framework }}"
 {% block gramine -%}
 [gramine]
 passthrough_env = {{ passthrough_env }}
+gramine_unstable = {{ gramine_unstable | lower }}
 {%- endblock %}
 
 [{{ scag.builder.framework }}]
